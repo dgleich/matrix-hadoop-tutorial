@@ -32,4 +32,8 @@ for this and use pip.
     source envs/mrjob/bin/activate
     pip install mrjob
 
+2. Get the datasets for the recommender system
+
+    make getdata
     
+3.     

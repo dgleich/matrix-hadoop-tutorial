@@ -2,9 +2,46 @@
 
 from mrjob.job import MRJob
 
-class MRRowSum(MRJob):
-    def mapper(self, key, line):
-        yield key, sum(float(tok) for tok in line.split())
+class SparseMatVec(MRJob):
+    """ First join the vector to the matrix based on columns,
+    (joinmap, joinred) then actually do the 
+    multiplication (multmap, multred) """
+    
+    def joinmap(self, key, line):
+        vals = [float(v) for v in  line.split()]
+        if len(vals) == 2:
+            # this is a piece of the vector
+            yield (vals[0], (vals[1],))
+        else:
+            # this is a piece of the matrix
+            yield (vals[1], (vals[0], vals[2]))
+
+    def joinred(self, key, vals):
+        # align all data on columns
+        # find the vector, and form all the products
+        # this code suffers from a large value problem,
+        # you could fix that with a secondary sort
+        vecval = 0. # setup default val to support sparse vectors
+        matvals = []
+        for val in vals:
+            if len(val) == 1:
+                vecval += val[0]
+            else:
+                matvals.append(val)
+                
+        for val in matvals:
+            yield (val[0], val[1]*vecval)
+        
+    def multmap(self, key, val):
+        yield (key, val)
+    
+    def multred(self, key, vals):
+        yield (key, sum(vals))
+        
+    def steps(self):
+        return [self.mr(mapper=self.joinmap, reducer=self.joinred),
+            self.mr(mapper=self.multmap, reducer=self.multred)]
+    
 
 if __name__=='__main__':
-    MRRowSum.run()        
+    SparseMatVec.run()        
