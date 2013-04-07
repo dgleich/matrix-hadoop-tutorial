@@ -14,7 +14,9 @@ class SparseMatVec(MRJob):
             yield (vals[0], (vals[1],))
         else:
             # this is a piece of the matrix
-            yield (vals[1], (vals[0], vals[2]))
+            row = vals[0]
+            for i in xrange(1,len(vals),2):
+                yield (vals[i], (row, vals[i+1]))
 
     def joinred(self, key, vals):
         # align all data on columns
