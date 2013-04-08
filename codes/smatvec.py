@@ -34,15 +34,12 @@ class SparseMatVec(MRJob):
         for val in matvals:
             yield (val[0], val[1]*vecval)
         
-    def multmap(self, key, val):
-        yield (key, val)
-    
-    def multred(self, key, vals):
+    def sumred(self, key, vals):
         yield (key, sum(vals))
         
     def steps(self):
         return [self.mr(mapper=self.joinmap, reducer=self.joinred),
-            self.mr(mapper=self.multmap, reducer=self.multred)]
+            self.mr(mapper=None, reducer=self.sumred)]
     
 
 if __name__=='__main__':

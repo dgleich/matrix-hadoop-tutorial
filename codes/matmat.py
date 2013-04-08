@@ -51,10 +51,6 @@ class SparseMatMatMult(MRJob):
             else:
                 acol.append(val)
         
-        
-        print 
-        print "key=%i"%(key), str(brow), str(acol)
-        
         for (bcol,bval) in brow:
             for (arow,aval) in acol:
                 yield ((arow,bcol), aval*bval)
