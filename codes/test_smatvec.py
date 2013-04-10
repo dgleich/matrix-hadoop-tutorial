@@ -27,7 +27,7 @@ for nnz in mat:
     mv[nnz[0]] += nnz[2]*vec[nnz[1]]
 for i in xrange(max(mv.iterkeys())+1):
     if i not in mv:
-        print "%i 0\n"%(i)
+        print "%i 0"%(i)
     else:
         print "%i %f"%(i,mv[i])
         
